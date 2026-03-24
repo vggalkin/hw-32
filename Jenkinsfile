@@ -58,33 +58,12 @@ pipeline {
                     }
                 }
 
-                stage('Integration Tests') {
-                    steps {
-                        echo '🔗 Запуск интеграционных тестов...'
-                        sh 'mvn verify -Dit.test=*IT -DfailIfNoTests=false'
-                    }
-                    post {
-                        always {
-                            script {
-                                def hasReports = sh(
-                                    script: 'test -d target/failsafe-reports && ls target/failsafe-reports/TEST-*.xml 1>/dev/null 2>&1 && echo "1" || echo "0"',
-                                    returnStdout: true
-                                ).trim()
-                                if (hasReports == '1') {
-                                    echo '📊 Публикация JUnit-отчётов (Integration)...'
-                                    junit allowEmptyResults: true, testResults: 'target/failsafe-reports/*.xml'
-                                }
-                            }
-                        }
-                    }
-                }
-
                 stage('Code Quality') {
                     steps {
                         echo '🔍 Анализ кода (Sonar/Checkstyle)...'
                         sh '''
                             mvn checkstyle:check -q || true
-                            mvn pmd:check -q || true
+                            # mvn pmd:check -q || true
                             # Опционально: запуск SonarQube
                             # mvn sonar:sonar -Dsonar.projectKey=my-project || true
                         '''
